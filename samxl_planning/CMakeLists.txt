@@ -9,10 +9,15 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(tesseract_rosutils REQUIRED)
 find_package(tesseract_monitoring REQUIRED)
+find_package(std_srvs REQUIRED)
 
 # Build an executable from the planning server code
 add_executable(${PROJECT_NAME} src/planning_server.cpp)
-ament_target_dependencies(${PROJECT_NAME} tesseract_rosutils tesseract_monitoring)
+ament_target_dependencies(${PROJECT_NAME}
+  tesseract_rosutils
+  tesseract_monitoring
+  std_srvs
+)
 
 # Install the launch file directory
 install(DIRECTORY launch DESTINATION share/${PROJECT_NAME})

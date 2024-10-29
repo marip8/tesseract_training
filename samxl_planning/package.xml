@@ -12,6 +12,7 @@
   <depend>tesseract_rosutils</depend>
   <depend>samxl_gantry_cell</depend>
   <depend>tesseract_training_configs</depend>
+  <depend>std_srvs</depend>
 
   <export>
     <build_type>ament_cmake</build_type>
