@@ -30,6 +30,7 @@
 #include <tesseract_command_language/poly/cartesian_waypoint_poly.h>
 #include <tesseract_command_language/poly/state_waypoint_poly.h>
 #include <tesseract_command_language/utils.h>
+#include <tesseract_command_language/profile_dictionary.h>
 
 // Tesseract task composer includes
 #include <tesseract_task_composer/core/task_composer_plugin_factory.h>
@@ -228,9 +229,23 @@ public:
     res->success = true;
   }
 
+  tesseract_common::JointTrajectory plotTrajectory(const std::string& key,
+                                                   tesseract_planning::TaskComposerContext::ConstPtr context)
+  {
+    // Get results of successful plan
+    tesseract_planning::CompositeInstruction program_results =
+        context->data_storage->getData(key).as<tesseract_planning::CompositeInstruction>();
+
+    // Send joint trajectory to Tesseract plotter widget
+    tesseract_common::JointTrajectory jt = toJointTrajectory(program_results);
+    plotter_->plotTrajectory(jt, *env_->getStateSolver());
+
+    return jt;
+  }
+
   trajectory_msgs::msg::JointTrajectory plan(const tesseract_planning::CompositeInstruction& program,
-                                                // tesseract_planning::ProfileDictionary::Ptr profile_dict,
-                                                const std::string& task_name)
+                                             tesseract_planning::ProfileDictionary::Ptr profile_dict,
+                                             const std::string& task_name)
   {
     // Set up task composer problem
     auto task_composer_config_file = get_parameter(TASK_COMPOSER_CONFIG_FILE_PARAM).as_string();
@@ -248,12 +263,14 @@ public:
       task->dump(tc_out_data);
     }
 
+    //
     const std::string input_key = task->getInputKeys().get("program");
-    const std::string output_key = task->getOutputKeys().get("program");
+    const std::string output_key = task->getOutputKeys().get("trajectory");
+
     auto task_data = std::make_shared<tesseract_planning::TaskComposerDataStorage>();
     task_data->setData(input_key, program);
     task_data->setData("environment", std::shared_ptr<const tesseract_environment::Environment>(env_));
-    // task_data->setData("profiles", profile_dict);
+    task_data->setData("profiles", profile_dict);
 
     // Dump dotgraphs of each task for reference
     {
@@ -280,17 +297,16 @@ public:
                                                                             result->context->task_infos.getInfoMap());
     }
 
+    // Plot the results of the intermediate planner steps
+    plotTrajectory("simple_planner_trajectory", result->context);
+    plotTrajectory("descartes_trajectory", result->context);
+
+    // Get results of successful plan
+    tesseract_common::JointTrajectory jt = plotTrajectory(output_key, result->context);
+
     // Check for successful plan
     if (!result->context->isSuccessful() || result->context->isAborted())
       throw std::runtime_error("Failed to create motion plan");
-
-    // Get results of successful plan
-    tesseract_planning::CompositeInstruction program_results =
-        result->context->data_storage->getData(output_key).as<tesseract_planning::CompositeInstruction>();
-
-    // Send joint trajectory to Tesseract plotter widget
-    tesseract_common::JointTrajectory jt = toJointTrajectory(program_results);
-    plotter_->plotTrajectory(jt, *env_->getStateSolver());
 
     return tesseract_rosutils::toMsg(jt, env_->getState());
   }
@@ -311,7 +327,10 @@ public:
 
       tesseract_planning::CompositeInstruction program = createProgram(info, poses);
 
-      trajectory_msgs::msg::JointTrajectory trajectory = plan(program, "");
+      // Populate the profile dictionary
+      auto pd = std::make_shared<tesseract_planning::ProfileDictionary>();
+
+      trajectory_msgs::msg::JointTrajectory trajectory = plan(program, pd, "TrajOptPipeline");
 
       // Forward to JTA to execute trajectory
       // ...

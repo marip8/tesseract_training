@@ -7,8 +7,10 @@ Panels:
         - /Global Options1
         - /Status1
         - /TesseractWorkbench1/Environment Properties1
+        - /TesseractWorkbench1/Joint Trajectory Properties1
+        - /TesseractWorkbench1/Joint Trajectory Properties1/Tesseract Joint Trajectory1
       Splitter Ratio: 0.5
-    Tree Height: 878
+    Tree Height: 758
   - Class: rviz_common/Selection
     Name: Selection
   - Class: rviz_common/Tool Properties
@@ -53,141 +55,83 @@ Visualization Manager:
       Frame Timeout: 15
       Frames:
         All Enabled: true
-        camera_front_left_corner_link:
+        arm_mount_hams_plate_link:
           Value: true
-        camera_front_left_corner_optical_frame:
+        axle_link:
           Value: true
-        camera_front_right_corner_link:
+        base_link:
           Value: true
-        camera_front_right_corner_optical_frame:
+        chassis_link:
           Value: true
-        camera_rear_left_corner_link:
+        front_cover_link:
           Value: true
-        camera_rear_left_corner_optical_frame:
+        front_left_wheel_link:
           Value: true
-        camera_rear_right_corner_link:
+        front_lights_link:
           Value: true
-        camera_rear_right_corner_optical_frame:
+        front_right_wheel_link:
           Value: true
-        camera_y_axis_left_link:
+        front_rocker_link:
           Value: true
-        camera_y_axis_left_optical_frame:
+        hams_plate_link:
           Value: true
-        camera_y_axis_right_link:
+        imu_link:
           Value: true
-        camera_y_axis_right_optical_frame:
+        left_side_cover_link:
           Value: true
-        camera_zb_axis_link:
+        map:
           Value: true
-        camera_zb_axis_optical_frame:
+        mid_mount:
           Value: true
-        dynamic_collision_object:
+        rear_cover_link:
           Value: true
-        gantry_base:
+        rear_left_wheel_link:
           Value: true
-        gantry_base_link:
+        rear_lights_link:
           Value: true
-        gantry_calibration_frame:
+        rear_right_wheel_link:
           Value: true
-        gantry_flange:
+        rear_rocker_link:
           Value: true
-        gantry_joint_1_end_point:
+        right_side_cover_link:
           Value: true
-        gantry_joint_1_lower_hard_limit:
+        riser_link:
           Value: true
-        gantry_joint_1_lower_physical_limit:
+        table_legs_link:
           Value: true
-        gantry_joint_1_lower_soft_limit:
+        table_top_link:
           Value: true
-        gantry_joint_1_null_point:
+        top_link:
           Value: true
-        gantry_joint_1_upper_hard_limit:
+        ur10e_base:
           Value: true
-        gantry_joint_1_upper_physical_limit:
+        ur10e_base_link:
           Value: true
-        gantry_joint_1_upper_soft_limit:
+        ur10e_base_link_inertia:
           Value: true
-        gantry_joint_2_end_point:
+        ur10e_flange:
           Value: true
-        gantry_joint_2_lower_hard_limit:
+        ur10e_forearm_link:
           Value: true
-        gantry_joint_2_lower_physical_limit:
+        ur10e_ft_frame:
           Value: true
-        gantry_joint_2_lower_soft_limit:
+        ur10e_shoulder_link:
           Value: true
-        gantry_joint_2_null_point:
+        ur10e_tool0:
           Value: true
-        gantry_joint_2_upper_hard_limit:
+        ur10e_upper_arm_link:
           Value: true
-        gantry_joint_2_upper_physical_limit:
+        ur10e_wrist_1_link:
           Value: true
-        gantry_joint_2_upper_soft_limit:
+        ur10e_wrist_2_link:
           Value: true
-        gantry_joint_3_end_point:
+        ur10e_wrist_3_link:
           Value: true
-        gantry_joint_3_lower_hard_limit:
+        x:
           Value: true
-        gantry_joint_3_lower_physical_limit:
+        y:
           Value: true
-        gantry_joint_3_lower_soft_limit:
-          Value: true
-        gantry_joint_3_null_point:
-          Value: true
-        gantry_joint_3_upper_hard_limit:
-          Value: true
-        gantry_joint_3_upper_physical_limit:
-          Value: true
-        gantry_joint_3_upper_soft_limit:
-          Value: true
-        gantry_joint_4_end_point:
-          Value: true
-        gantry_joint_4_lower_hard_limit:
-          Value: true
-        gantry_joint_4_lower_physical_limit:
-          Value: true
-        gantry_joint_4_lower_soft_limit:
-          Value: true
-        gantry_joint_4_null_point:
-          Value: true
-        gantry_joint_4_upper_hard_limit:
-          Value: true
-        gantry_joint_4_upper_physical_limit:
-          Value: true
-        gantry_joint_4_upper_soft_limit:
-          Value: true
-        gantry_link_1:
-          Value: true
-        gantry_link_2:
-          Value: true
-        gantry_link_3:
-          Value: true
-        gantry_link_4:
-          Value: true
-        gantry_link_5:
-          Value: true
-        gantry_reflector_frame:
-          Value: true
-        gantry_tool0:
-          Value: true
-        quickrelease_base_link:
-          Value: true
-        quickrelease_flange:
-          Value: true
-        quickrelease_link_1:
-          Value: true
-        quickrelease_link_2:
-          Value: true
-        walls:
-          Value: true
-        wrist_base_link:
-          Value: true
-        wrist_flange:
-          Value: true
-        wrist_link_1:
-          Value: true
-        wrist_link_2:
-          Value: true
-        wrist_tool0:
+        yaw:
           Value: true
       Marker Scale: 1
       Name: TF
@@ -195,140 +139,82 @@ Visualization Manager:
       Show Axes: true
       Show Names: false
       Tree:
-        gantry_base_link:
-          camera_front_left_corner_link:
+        map:
+          arm_mount_hams_plate_link:
             {}
-          camera_front_left_corner_optical_frame:
+          axle_link:
             {}
-          camera_front_right_corner_link:
+          base_link:
             {}
-          camera_front_right_corner_optical_frame:
+          chassis_link:
             {}
-          camera_rear_left_corner_link:
+          front_cover_link:
             {}
-          camera_rear_left_corner_optical_frame:
+          front_left_wheel_link:
             {}
-          camera_rear_right_corner_link:
+          front_lights_link:
             {}
-          camera_rear_right_corner_optical_frame:
+          front_right_wheel_link:
             {}
-          camera_y_axis_left_link:
+          front_rocker_link:
             {}
-          camera_y_axis_left_optical_frame:
+          hams_plate_link:
             {}
-          camera_y_axis_right_link:
+          imu_link:
             {}
-          camera_y_axis_right_optical_frame:
+          left_side_cover_link:
             {}
-          camera_zb_axis_link:
+          mid_mount:
             {}
-          camera_zb_axis_optical_frame:
+          rear_cover_link:
             {}
-          dynamic_collision_object:
+          rear_left_wheel_link:
             {}
-          gantry_base:
+          rear_lights_link:
             {}
-          gantry_calibration_frame:
+          rear_right_wheel_link:
             {}
-          gantry_flange:
+          rear_rocker_link:
             {}
-          gantry_joint_1_end_point:
+          right_side_cover_link:
             {}
-          gantry_joint_1_lower_hard_limit:
+          riser_link:
             {}
-          gantry_joint_1_lower_physical_limit:
+          table_legs_link:
             {}
-          gantry_joint_1_lower_soft_limit:
+          table_top_link:
             {}
-          gantry_joint_1_null_point:
+          top_link:
             {}
-          gantry_joint_1_upper_hard_limit:
+          ur10e_base:
             {}
-          gantry_joint_1_upper_physical_limit:
+          ur10e_base_link:
             {}
-          gantry_joint_1_upper_soft_limit:
+          ur10e_base_link_inertia:
             {}
-          gantry_joint_2_end_point:
+          ur10e_flange:
             {}
-          gantry_joint_2_lower_hard_limit:
+          ur10e_forearm_link:
             {}
-          gantry_joint_2_lower_physical_limit:
+          ur10e_ft_frame:
             {}
-          gantry_joint_2_lower_soft_limit:
+          ur10e_shoulder_link:
             {}
-          gantry_joint_2_null_point:
+          ur10e_tool0:
             {}
-          gantry_joint_2_upper_hard_limit:
+          ur10e_upper_arm_link:
             {}
-          gantry_joint_2_upper_physical_limit:
+          ur10e_wrist_1_link:
             {}
-          gantry_joint_2_upper_soft_limit:
+          ur10e_wrist_2_link:
             {}
-          gantry_joint_3_end_point:
+          ur10e_wrist_3_link:
             {}
-          gantry_joint_3_lower_hard_limit:
+          x:
             {}
-          gantry_joint_3_lower_physical_limit:
+          y:
             {}
-          gantry_joint_3_lower_soft_limit:
-            {}
-          gantry_joint_3_null_point:
-            {}
-          gantry_joint_3_upper_hard_limit:
-            {}
-          gantry_joint_3_upper_physical_limit:
-            {}
-          gantry_joint_3_upper_soft_limit:
-            {}
-          gantry_joint_4_end_point:
-            {}
-          gantry_joint_4_lower_hard_limit:
-            {}
-          gantry_joint_4_lower_physical_limit:
-            {}
-          gantry_joint_4_lower_soft_limit:
-            {}
-          gantry_joint_4_null_point:
-            {}
-          gantry_joint_4_upper_hard_limit:
-            {}
-          gantry_joint_4_upper_physical_limit:
-            {}
-          gantry_joint_4_upper_soft_limit:
-            {}
-          gantry_link_1:
-            {}
-          gantry_link_2:
-            {}
-          gantry_link_3:
-            {}
-          gantry_link_4:
-            {}
-          gantry_link_5:
-            {}
-          gantry_reflector_frame:
-            {}
-          gantry_tool0:
-            {}
-          quickrelease_base_link:
-            {}
-          quickrelease_flange:
-            {}
-          quickrelease_link_1:
-            {}
-          quickrelease_link_2:
-            {}
-          walls:
-            {}
-          wrist_base_link:
-            {}
-          wrist_flange:
-            {}
-          wrist_link_1:
-            {}
-          wrist_link_2:
-            {}
-          wrist_tool0:
+          yaw:
             {}
       Update Interval: 0
       Value: true
@@ -350,301 +236,13 @@ Visualization Manager:
         Expand Link Details: false
         Expand Tree: false
         Link Tree Style: Links in Alphabetic Order
-        camera_front_left_corner_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        camera_front_left_corner_optical_frame:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        camera_front_right_corner_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        camera_front_right_corner_optical_frame:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        camera_rear_left_corner_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        camera_rear_left_corner_optical_frame:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        camera_rear_right_corner_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        camera_rear_right_corner_optical_frame:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        camera_y_axis_left_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        camera_y_axis_left_optical_frame:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        camera_y_axis_right_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        camera_y_axis_right_optical_frame:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        camera_zb_axis_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        camera_zb_axis_optical_frame:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        gantry_base:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        gantry_base_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        gantry_calibration_frame:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        gantry_flange:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        gantry_joint_1_end_point:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        gantry_joint_1_lower_hard_limit:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        gantry_joint_1_lower_physical_limit:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        gantry_joint_1_lower_soft_limit:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        gantry_joint_1_null_point:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        gantry_joint_1_upper_hard_limit:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        gantry_joint_1_upper_physical_limit:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        gantry_joint_1_upper_soft_limit:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        gantry_joint_2_end_point:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        gantry_joint_2_lower_hard_limit:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        gantry_joint_2_lower_physical_limit:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        gantry_joint_2_lower_soft_limit:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        gantry_joint_2_null_point:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        gantry_joint_2_upper_hard_limit:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        gantry_joint_2_upper_physical_limit:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        gantry_joint_2_upper_soft_limit:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        gantry_joint_3_end_point:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        gantry_joint_3_lower_hard_limit:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        gantry_joint_3_lower_physical_limit:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        gantry_joint_3_lower_soft_limit:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        gantry_joint_3_null_point:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        gantry_joint_3_upper_hard_limit:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        gantry_joint_3_upper_physical_limit:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        gantry_joint_3_upper_soft_limit:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        gantry_joint_4_end_point:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        gantry_joint_4_lower_hard_limit:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        gantry_joint_4_lower_physical_limit:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        gantry_joint_4_lower_soft_limit:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        gantry_joint_4_null_point:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        gantry_joint_4_upper_hard_limit:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        gantry_joint_4_upper_physical_limit:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        gantry_joint_4_upper_soft_limit:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        gantry_link_1:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        gantry_link_2:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        gantry_link_3:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        gantry_link_4:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        gantry_link_5:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        gantry_reflector_frame:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        gantry_tool0:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        quickrelease_base_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        quickrelease_flange:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        quickrelease_link_1:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        quickrelease_link_2:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        walls:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        wrist_base_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        wrist_flange:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        wrist_link_1:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        wrist_link_2:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        wrist_tool0:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
       Mass Properties:
         Inertia: false
         Mass: false
       Name: RobotModel
       TF Prefix: ""
       Update Interval: 0
-      Value: true
+      Value: false
       Visual Enabled: true
     - Class: tesseract_rviz/TesseractWorkbench
       Enabled: true
@@ -660,7 +258,7 @@ Visualization Manager:
           Value: true
           topic: /joint_trajectory
         Tesseract Joint Trajectory:
-          Joint Trajectory Topic: /tesseract_trajectory
+          Joint Trajectory Topic: /samxl/display_tesseract_trajectory
           Value: true
         Value: ""
       Name: TesseractWorkbench
@@ -668,7 +266,7 @@ Visualization Manager:
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
-    Fixed Frame: walls
+    Fixed Frame: map
     Frame Rate: 30
   Name: root
   Tools:
@@ -711,36 +309,34 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Distance: 25.419466018676758
+      Distance: 4.142862796783447
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 5.318193435668945
-        Y: 6.38935661315918
-        Z: -1.5107883214950562
+        X: 0.5160992741584778
+        Y: 0.6588552594184875
+        Z: 0.8026559948921204
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.7103980183601379
+      Pitch: 0.4731990098953247
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 5.558586120605469
+      Yaw: 6.258589744567871
     Saved: ~
 Window Geometry:
   Displays:
     collapsed: false
-  Height: 1136
+  Height: 1016
   Hide Left Dock: false
   Hide Right Dock: true
-  QMainWindow State: 000000ff00000000fd00000004000000000000023c00000416fc0200000009fb0000001200530065006c0065006300740069006f006e00000001e10000009b0000005c00fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000001ed000001df00000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afc0000003d00000416000003520100001cfa000000000100000004fb000000100044006900730070006c00610079007301000000000000023c0000015600fffffffb000000240054006500730073006500720061006300740057006f0072006b00620065006e006300680100000000ffffffff0000023c00fffffffb000000240054006500730073006500720061006300740057006f0072006b00620065006e006300680100000000ffffffff0000000000000000fb000000240054006500730073006500720061006300740057006f0072006b00620065006e006300680000000000ffffffff0000000000000000fb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c00000261fb000000280054006500730073006500720061006300740045006e007600690072006f006e006d0065006e007400000003070000014c0000014c00ffffff000000010000010f0000035afc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a00560069006500770073000000003d0000035a000000a400fffffffb0000001200530065006c0065006300740069006f006e010000025a000000b200000000000000000000000200000490000000a9fc0100000001fb0000000a00560069006500770073030000004e00000080000002e100000197000000030000073a00000039fc0100000002fb0000000800540069006d006500000000000000073a000002fb00fffffffb0000000800540069006d00650100000000000004500000000000000000000004f80000041600000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  QMainWindow State: 000000ff00000000fd00000004000000000000023c0000039efc0200000009fb0000001200530065006c0065006300740069006f006e00000001e10000009b0000005c00fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000001ed000001df00000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afc0000003d0000039e000003520100001cfa000000000100000004fb000000100044006900730070006c00610079007301000000000000023c0000015600fffffffb000000240054006500730073006500720061006300740057006f0072006b00620065006e006300680100000000ffffffff0000023c00fffffffb000000240054006500730073006500720061006300740057006f0072006b00620065006e006300680100000000ffffffff0000000000000000fb000000240054006500730073006500720061006300740057006f0072006b00620065006e006300680000000000ffffffff0000000000000000fb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c00000261fb000000280054006500730073006500720061006300740045006e007600690072006f006e006d0065006e007400000003070000014c0000000000000000000000010000010f0000035afc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a00560069006500770073000000003d0000035a000000a400fffffffb0000001200530065006c0065006300740069006f006e010000025a000000b200000000000000000000000200000490000000a9fc0100000001fb0000000a00560069006500770073030000004e00000080000002e100000197000000030000073a00000039fc0100000002fb0000000800540069006d006500000000000000073a000002fb00fffffffb0000000800540069006d00650100000000000004500000000000000000000004f80000039e00000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
   Selection:
-    collapsed: false
-  TesseractEnvironment:
     collapsed: false
   TesseractWorkbench:
     collapsed: false

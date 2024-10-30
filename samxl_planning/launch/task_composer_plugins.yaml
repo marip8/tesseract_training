@@ -1,0 +1,78 @@
+task_composer_plugins:
+  executors:
+    default: TaskflowExecutor
+    plugins:
+      TaskflowExecutor:
+        class: TaskflowTaskComposerExecutorFactory
+        config:
+          threads: 8
+  tasks:
+    plugins:
+      TrajOptPipeline:
+        class: GraphTaskFactory
+        config:
+          inputs:
+            program: input_data
+          outputs:
+            trajectory: trajopt_trajectory
+          nodes:
+            SimplePlanner:
+              class: SimpleMotionPlannerTaskFactory
+              config:
+                conditional: true
+                inputs:
+                  program: input_data
+                  environment: environment
+                  profiles: profiles
+                outputs:
+                  program: simple_planner_trajectory
+                format_result_as_input: true
+            Descartes:
+              class: DescartesFMotionPlannerTaskFactory
+              config:
+                conditional: true
+                inputs:
+                  program: simple_planner_trajectory
+                  environment: environment
+                  profiles: profiles
+                outputs:
+                  program: descartes_trajectory
+                format_result_as_input: true
+            Trajopt:
+              class: TrajOptMotionPlannerTaskFactory
+              config:
+                conditional: true
+                inputs:
+                  program: descartes_trajectory
+                  environment: environment
+                  profiles: profiles
+                outputs:
+                  program: trajopt_trajectory
+                format_result_as_input: false
+            DiscreteContactCheck:
+              class: DiscreteContactCheckTaskFactory
+              config:
+                conditional: true
+                inputs:
+                  program: trajopt_trajectory
+                  environment: environment
+                  profiles: profiles
+            Done:
+              class: DoneTaskFactory
+              config:
+                conditional: false
+            Error:
+              class: ErrorTaskFactory
+              config:
+                conditional: false
+                trigger_abort: true
+          edges:
+            - source: SimplePlanner
+              destinations: [Error, Descartes]
+            - source: Descartes
+              destinations: [Error, Trajopt]
+            - source: Trajopt
+              destinations: [Error, DiscreteContactCheck]
+            - source: DiscreteContactCheck
+              destinations: [Error, Done]
+          terminals: [Error, Done]
