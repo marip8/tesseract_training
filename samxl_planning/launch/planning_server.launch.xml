@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <launch>
-  <arg name="robot_description_file" default="$(find-pkg-share samxl_gantry_cell_description)/urdf/samxl_gantry_cell.xacro"/>
+  <arg name="robot_description_file" default="$(find-pkg-share coresense_ridgeback_ur10e_description)/urdf/samxl_coby.xacro"/>
   <arg name="robot_description" default="$(command 'xacro $(var robot_description_file)')"/>
-  <arg name="robot_description_semantic" default="$(command 'cat $(find-pkg-share tesseract_training_configs)/config/samxl_gantry_cell_description.srdf')"/>
+  <arg name="robot_description_semantic" default="$(command 'cat $(find-pkg-share tesseract_training_configs)/config/coby_robot.srdf')"/>
 
   <!-- Joint state publisher -->
   <node pkg="joint_state_publisher" exec="joint_state_publisher">

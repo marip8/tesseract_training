@@ -90,14 +90,14 @@ public:
     plotter_ = std::make_shared<tesseract_rosutils::ROSPlotting>(env_->getRootLinkName(), "samxl");
 
     // Add a link to the environment
-    env_->applyCommand(createAddLinkCommand(env_->getRootLinkName()));
+    // env_->applyCommand(createAddLinkCommand(env_->getRootLinkName()));
 
     // Make a timer to move an arbitrary link around in the environment
-    server_ = create_service<std_srvs::srv::Trigger>("move_object",
+    // server_ = create_service<std_srvs::srv::Trigger>("move_object",
                                                      std::bind(&PlanningServer::moveCylinderLinkCallback, this, std::placeholders::_1, std::placeholders::_2));
 
     // Create a timer to move the object around dynamically
-    timer_ = create_wall_timer(std::chrono::milliseconds(100), std::bind(&PlanningServer::timerCallback, this));
+    // timer_ = create_wall_timer(std::chrono::milliseconds(100), std::bind(&PlanningServer::timerCallback, this));
   }
 
   void timerCallback()
