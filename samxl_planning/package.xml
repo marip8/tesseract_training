@@ -8,6 +8,7 @@
   <license>TODO: License declaration</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
+  <depend>control_msgs</depend>
   <depend>tesseract_monitoring</depend>
   <depend>tesseract_rosutils</depend>
   <depend>samxl_gantry_cell</depend>

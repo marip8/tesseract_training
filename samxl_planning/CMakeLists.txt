@@ -9,6 +9,7 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(tesseract_rosutils REQUIRED)
 find_package(tesseract_monitoring REQUIRED)
+find_package(control_msgs REQUIRED)
 find_package(std_srvs REQUIRED)
 
 # Build an executable from the planning server code
