@@ -4,6 +4,7 @@
 #include <rclcpp/publisher.hpp>
 #include <std_msgs/msg/string.hpp>
 
+#include <console_bridge/console.h>
 #include <std_srvs/srv/trigger.hpp>
 #include <chrono>
 
@@ -19,9 +20,30 @@
 #include <tesseract_geometry/impl/cylinder.h>
 #include <tesseract_scene_graph/graph.h>
 #include <tesseract_kinematics/core/kinematic_group.h>
+#include <tesseract_state_solver/state_solver.h>
+
+// Tesseract command language includes
+#include <tesseract_command_language/state_waypoint.h>
+#include <tesseract_command_language/composite_instruction.h>
+#include <tesseract_command_language/move_instruction.h>
+#include <tesseract_command_language/cartesian_waypoint.h>
+#include <tesseract_command_language/poly/cartesian_waypoint_poly.h>
+#include <tesseract_command_language/poly/state_waypoint_poly.h>
+#include <tesseract_command_language/utils.h>
+
+// Tesseract task composer includes
+#include <tesseract_task_composer/core/task_composer_plugin_factory.h>
+#include <tesseract_task_composer/core/task_composer_data_storage.h>
+#include <tesseract_task_composer/core/task_composer_executor.h>
+#include <tesseract_task_composer/core/task_composer_future.h>
+#include <tesseract_task_composer/core/task_composer_node.h>
+#include <tesseract_task_composer/core/task_composer_context.h>
+#include <tesseract_task_composer/core/task_composer_graph.h>
 
 static const std::string COLLISION_LINK_NAME = "dynamic_collision_object";
 static const std::string COLLISION_JOINT_NAME = "dynamic_collision_object_joint";
+static const std::string PROFILE = "samxl";
+static const std::string TASK_COMPOSER_CONFIG_FILE_PARAM = "task_composer_file";
 
 // Add a link to the environment to represent a dynamic collision obstacle
 tesseract_environment::Command::Ptr createAddLinkCommand(const std::string& parent_link)
@@ -59,11 +81,17 @@ public:
     : rclcpp::Node("planning_server")
     , env_(std::make_shared<tesseract_environment::Environment>())
   {
+    // Update log level for debugging
+    console_bridge::setLogLevel(console_bridge::LogLevel::CONSOLE_BRIDGE_LOG_DEBUG);
+
     // Get the URDF and SRDF from parameter
     declare_parameter("robot_description", "");
     declare_parameter("robot_description_semantic", "");
     const std::string urdf = get_parameter("robot_description").as_string();
     const std::string srdf = get_parameter("robot_description_semantic").as_string();
+
+    // Declare a parameter for the task composer file
+    declare_parameter(TASK_COMPOSER_CONFIG_FILE_PARAM, "");
 
     // Populate the environment from URDF and SRDF
     auto locator = std::make_shared<tesseract_rosutils::ROSResourceLocator>();
@@ -94,10 +122,43 @@ public:
 
     // Make a timer to move an arbitrary link around in the environment
     // server_ = create_service<std_srvs::srv::Trigger>("move_object",
-                                                     std::bind(&PlanningServer::moveCylinderLinkCallback, this, std::placeholders::_1, std::placeholders::_2));
+                                                     // std::bind(&PlanningServer::moveCylinderLinkCallback, this, std::placeholders::_1, std::placeholders::_2));
 
     // Create a timer to move the object around dynamically
     // timer_ = create_wall_timer(std::chrono::milliseconds(100), std::bind(&PlanningServer::timerCallback, this));
+
+    // Create a server for motion planning
+    plan_server_ = create_service<std_srvs::srv::Trigger>("plan", std::bind(&PlanningServer::planCallback, this, std::placeholders::_1, std::placeholders::_2));
+  }
+
+  tesseract_planning::CompositeInstruction createProgram(const tesseract_common::ManipulatorInfo& info,
+                                                         const tesseract_common::VectorIsometry3d& poses)
+  {
+    using namespace tesseract_planning;
+
+    CompositeInstruction program(PROFILE, CompositeInstructionOrder::ORDERED, info);
+
+    // Get the names of the joints associated with the input manipulator group
+    const std::vector<std::string> joint_names = env_->getJointGroup(info.manipulator)->getJointNames();
+
+    // Add the current state of the robot as the start state of the trajectory
+    {
+      StateWaypoint current_state(joint_names, env_->getCurrentJointValues(joint_names));
+
+      // Define a "move" to the start waypoint
+      program.appendMoveInstruction(
+          MoveInstruction(StateWaypointPoly{ current_state }, MoveInstructionType::FREESPACE, PROFILE, info));
+    }
+
+    // Add move instructions to the input poses
+    for(const Eigen::Isometry3d& pose : poses)
+    {
+      CartesianWaypoint waypoint(pose);
+      program.appendMoveInstruction(
+          MoveInstruction(CartesianWaypointPoly{waypoint}, MoveInstructionType::LINEAR, PROFILE, info));
+    }
+
+    return program;
   }
 
   void timerCallback()
@@ -167,6 +228,103 @@ public:
     res->success = true;
   }
 
+  trajectory_msgs::msg::JointTrajectory plan(const tesseract_planning::CompositeInstruction& program,
+                                                // tesseract_planning::ProfileDictionary::Ptr profile_dict,
+                                                const std::string& task_name)
+  {
+    // Set up task composer problem
+    auto task_composer_config_file = get_parameter(TASK_COMPOSER_CONFIG_FILE_PARAM).as_string();
+    const YAML::Node task_composer_config = YAML::LoadFile(task_composer_config_file);
+    tesseract_planning::TaskComposerPluginFactory factory(task_composer_config);
+
+    auto executor = factory.createTaskComposerExecutor("TaskflowExecutor");
+    tesseract_planning::TaskComposerNode::UPtr task = factory.createTaskComposerNode(task_name);
+    if (!task)
+      throw std::runtime_error("Failed to create '" + task_name + "' task");
+
+    // Save dot graph
+    {
+      std::ofstream tc_out_data(tesseract_common::getTempPath() + task_name + ".dot");
+      task->dump(tc_out_data);
+    }
+
+    const std::string input_key = task->getInputKeys().get("program");
+    const std::string output_key = task->getOutputKeys().get("program");
+    auto task_data = std::make_shared<tesseract_planning::TaskComposerDataStorage>();
+    task_data->setData(input_key, program);
+    task_data->setData("environment", std::shared_ptr<const tesseract_environment::Environment>(env_));
+    // task_data->setData("profiles", profile_dict);
+
+    // Dump dotgraphs of each task for reference
+    {
+      const YAML::Node& task_plugins = task_composer_config["task_composer_plugins"]["tasks"]["plugins"];
+      for (auto it = task_plugins.begin(); it != task_plugins.end(); ++it)
+      {
+        auto task_plugin_name = it->first.as<std::string>();
+        std::ofstream f(tesseract_common::getTempPath() + task_plugin_name + ".dot");
+        tesseract_planning::TaskComposerNode::Ptr task = factory.createTaskComposerNode(task_plugin_name);
+        if (!task)
+          throw std::runtime_error("Failed to load task: '" + task_plugin_name + "'");
+        task->dump(f);
+      }
+    }
+
+    // Run problem
+    tesseract_planning::TaskComposerFuture::UPtr result = executor->run(*task, task_data, true);
+    result->wait();
+
+    // Save the output dot graph
+    {
+      std::ofstream tc_out_results(tesseract_common::getTempPath() + task_name + "_results.dot");
+      static_cast<const tesseract_planning::TaskComposerGraph&>(*task).dump(tc_out_results, nullptr,
+                                                                            result->context->task_infos.getInfoMap());
+    }
+
+    // Check for successful plan
+    if (!result->context->isSuccessful() || result->context->isAborted())
+      throw std::runtime_error("Failed to create motion plan");
+
+    // Get results of successful plan
+    tesseract_planning::CompositeInstruction program_results =
+        result->context->data_storage->getData(output_key).as<tesseract_planning::CompositeInstruction>();
+
+    // Send joint trajectory to Tesseract plotter widget
+    tesseract_common::JointTrajectory jt = toJointTrajectory(program_results);
+    plotter_->plotTrajectory(jt, *env_->getStateSolver());
+
+    return tesseract_rosutils::toMsg(jt, env_->getState());
+  }
+
+  void planCallback(std_srvs::srv::Trigger::Request::SharedPtr /*req*/,
+                    std_srvs::srv::Trigger::Response::SharedPtr res)
+  {
+    try
+    {
+      tesseract_common::ManipulatorInfo info("mobile_manipulator", "map", "ur10e_tool0");
+
+      Eigen::Isometry3d pose_1 = Eigen::Isometry3d::Identity();
+      pose_1.translate(Eigen::Vector3d(3.0, 3.0, 1.0)).rotate(Eigen::AngleAxisd(M_PI, Eigen::Vector3d::UnitX()));
+
+      tesseract_common::VectorIsometry3d poses {
+        pose_1,
+      };
+
+      tesseract_planning::CompositeInstruction program = createProgram(info, poses);
+
+      trajectory_msgs::msg::JointTrajectory trajectory = plan(program, "");
+
+      // Forward to JTA to execute trajectory
+      // ...
+
+      res->success = true;
+    }
+    catch(const std::exception& ex)
+    {
+      res->message = ex.what();
+      res->success = false;
+    }
+  }
+
 protected:
   tesseract_environment::Environment::Ptr env_;
   tesseract_monitoring::ROSEnvironmentMonitor::Ptr monitor_;
@@ -175,6 +333,7 @@ protected:
   // ROS interfaces
   rclcpp::Publisher<std_msgs::msg::String>::SharedPtr urdf_pub_;
   rclcpp::Service<std_srvs::srv::Trigger>::SharedPtr server_;
+  rclcpp::Service<std_srvs::srv::Trigger>::SharedPtr plan_server_;
   rclcpp::TimerBase::SharedPtr timer_;
 };
 
