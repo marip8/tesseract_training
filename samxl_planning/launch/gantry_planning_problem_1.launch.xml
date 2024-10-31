@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name="robot_description_file" default="$(find-pkg-share penelope_gantry_cell_description)/urdf/penelope_gantry_cell.xacro"/>
+  <arg name="robot_description" default="$(command 'xacro $(var robot_description_file)')"/>
+  <arg name="robot_description_semantic" default="$(command 'cat $(find-pkg-share penelope_gantry_cell_description)/config/penelope_tool_cell.srdf')"/>
+
+  <arg name="task_composer_plugins_file" default="$(find-pkg-share samxl_planning)/config/task_composer_plugins.yaml'"/>
+  <arg name="task_name" default="TrajoptPipeline"/>
+
+  <!-- Joint state publisher -->
+  <node pkg="joint_state_publisher" exec="joint_state_publisher">
+    <param name="source_list" value="[robot_joint_states]"/>
+  </node>
+
+  <!-- Joint state publisher GUI for experimentation -->
+  <node pkg="joint_state_publisher_gui" exec="joint_state_publisher_gui" name="jsp_gui">
+    <remap from="joint_states" to="robot_joint_states"/>
+  </node>
+
+  <!-- SAMXL planning server -->
+  <node pkg="samxl_planning" exec="gantry_planning_problem_1" output="screen">
+    <param name="robot_description" value="$(var robot_description)" type="str"/>
+    <param name="robot_description_semantic" value="$(var robot_description_semantic)" type="str"/>
+  </node>
+
+  <!-- Rviz -->
+  <node pkg="rviz2" exec="rviz2" args="-d $(find-pkg-share samxl_planning)/launch/samxl.rviz" />
+</launch>
