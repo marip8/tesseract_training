@@ -73,8 +73,8 @@ static const std::string PROFILE = "DEFAULT_SAMXL";
 // ROS Parameter Settings
 // =============================================================================
 
-static const TASK_COMPOSER_CONFIG_FILE_PARAM = "task_composer_file"
-static const TASK_NAME_PARAM = "TrajOptPipeline"
+static const std::string TASK_COMPOSER_CONFIG_FILE_PARAM = "task_composer_file";
+static const std::string TASK_NAME_PARAM = "TrajOptPipeline";
 
 
 class PlanningServer : public rclcpp::Node
@@ -96,6 +96,7 @@ public:
 
     // Declare a parameter for the task composer file
     declare_parameter(TASK_COMPOSER_CONFIG_FILE_PARAM, "");
+    declare_parameter(TASK_NAME_PARAM, "");
 
     // Populate the environment from URDF and SRDF
     auto locator = std::make_shared<tesseract_rosutils::ROSResourceLocator>();
@@ -252,7 +253,7 @@ public:
     auto task_data = std::make_shared<tesseract_planning::TaskComposerDataStorage>();
     task_data->setData(input_key, program);
     task_data->setData("environment", std::shared_ptr<const tesseract_environment::Environment>(env_));
-    task_data->setData("profiles", profile_dict);
+    task_data->setData("profiles", createProfileDict());
 
     // Dump dotgraphs of each task for reference
     {
@@ -299,7 +300,7 @@ public:
 
     auto goal_msg = control_msgs::action::FollowJointTrajectory::Goal();
     goal_msg.trajectory = trajectory;
-    goal_msg.goal_time_tolerance = rclcpp::Duration.from_seconds(5.0);
+    goal_msg.goal_time_tolerance = rclcpp::Duration::from_seconds(5.0);
 
     // TODO: Send action goal
   }
