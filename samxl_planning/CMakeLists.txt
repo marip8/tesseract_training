@@ -20,6 +20,18 @@ ament_target_dependencies(${PROJECT_NAME}
   std_srvs
 )
 
+add_executable(gantry_planning_problem_1 src/gantry_planning_problem_1.cpp)
+ament_target_dependencies(gantry_planning_problem_1
+  tesseract_rosutils
+  tesseract_monitoring
+  control_msgs
+  std_srvs
+)
+target_include_directories(gantry_planning_problem_1
+  PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>)
+
 # Install the launch file directory
 install(DIRECTORY launch DESTINATION share/${PROJECT_NAME})
 
