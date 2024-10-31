@@ -76,3 +76,99 @@ task_composer_plugins:
             - source: DiscreteContactCheck
               destinations: [Error, Done]
           terminals: [Error, Done]
+      FreespacePipeline:
+        class: GraphTaskFactory
+        config:
+          inputs:
+            program: input_data
+          outputs:
+            trajectory: trajopt_trajectory
+          nodes:
+            OMPL:
+              class: OMPLMotionPlannerTaskFactory
+              config:
+                conditional: true
+                inputs:
+                  program: input_data
+                  environment: environment
+                  profiles: profiles
+                outputs:
+                  program: ompl_trajectory
+                format_result_as_input: false
+            Trajopt:
+              class: TrajOptMotionPlannerTaskFactory
+              config:
+                conditional: true
+                inputs:
+                  program: ompl_trajectory
+                  environment: environment
+                  profiles: profiles
+                outputs:
+                  program: trajopt_trajectory
+                format_result_as_input: false
+            Done:
+              class: DoneTaskFactory
+              config:
+                conditional: false
+            Error:
+              class: ErrorTaskFactory
+              config:
+                conditional: false
+                trigger_abort: true
+          edges:
+            - source: OMPL
+              destinations: [Error, Trajopt]
+            - source: Trajopt
+              destinations: [Error, Done]
+          terminals: [Error, Done]
+      RasterPipeline:
+        class: GraphTaskFactory
+        config:
+          inputs:
+            program: input_data
+          outputs:
+            trajectory: output_data
+          nodes:
+            Done:
+              class: DoneTaskFactory
+              config:
+                conditional: false
+            Error:
+              class: ErrorTaskFactory
+              config:
+                conditional: false
+                trigger_abort: true
+            RasterTask:
+              class: RasterMotionTaskFactory
+              config:
+                conditional: true
+                inputs:
+                  program: input_data
+                  environment: environment
+                outputs:
+                  program: output_data
+                freespace:
+                  task: FreespacePipeline
+                  config:
+                    remapping:
+                      input_data: output_data
+                      output_data: output_data
+                    indexing: [output_data]
+                raster:
+                  task: TrajOptPipeline
+                  config:
+                    remapping:
+                      input_data: output_data
+                      output_data: output_data
+                    indexing: [output_data]
+                transition:
+                  task: FreespacePipeline
+                  config:
+                    remapping:
+                      input_data: output_data
+                      output_data: output_data
+                    indexing: [output_data]
+          edges:
+            - source: RasterTask
+              destinations: [Error, Done]
+          terminals: [Error, Done]

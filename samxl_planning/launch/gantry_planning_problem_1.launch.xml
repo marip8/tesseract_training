@@ -21,6 +21,8 @@
   <node pkg="samxl_planning" exec="gantry_planning_problem_1" output="screen">
     <param name="robot_description" value="$(var robot_description)" type="str"/>
     <param name="robot_description_semantic" value="$(var robot_description_semantic)" type="str"/>
+    <param name="task_composer_file" value="$(find-pkg-share samxl_planning)/launch/task_composer_plugins.yaml"/>
+    <param name="task_name" value="TrajOptPipeline"/>
   </node>
 
   <!-- Rviz -->

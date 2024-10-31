@@ -40,6 +40,7 @@
 #include <tesseract_task_composer/core/task_composer_node.h>
 #include <tesseract_task_composer/core/task_composer_context.h>
 #include <tesseract_task_composer/core/task_composer_graph.h>
+#include <tesseract_motion_planners/simple/profile/simple_planner_lvs_plan_profile.h>
 
 // Tesseract ROS Utils
 #include <tesseract_rosutils/plotting.h>
@@ -50,6 +51,7 @@
 #include <tesseract_kinematics/core/kinematic_group.h>
 #include <tesseract_monitoring/environment_monitor.h>
 #include <tesseract_state_solver/state_solver.h>
+#include <tesseract_visualization/markers/axis_marker.h>
 
 // =============================================================================
 // SAM XL Gantry Cell Settings
@@ -74,7 +76,7 @@ static const std::string PROFILE = "DEFAULT_SAMXL";
 // =============================================================================
 
 static const std::string TASK_COMPOSER_CONFIG_FILE_PARAM = "task_composer_file";
-static const std::string TASK_NAME_PARAM = "TrajOptPipeline";
+static const std::string TASK_NAME_PARAM = "task_name";
 
 
 class PlanningServer : public rclcpp::Node
@@ -125,6 +127,8 @@ public:
     // Create ROS Service to plan trajectory
     plan_server_ = create_service<std_srvs::srv::Trigger>("plan_trajectory", std::bind(&PlanningServer::planCallback, this, std::placeholders::_1, std::placeholders::_2));
     trajectory_action_client_ptr_ = rclcpp_action::create_client<control_msgs::action::FollowJointTrajectory>(this, "follow_joint_trajectory");
+
+    // Create a program to get it to publish
   }
 
   void planCallback(std_srvs::srv::Trigger::Request::SharedPtr /*req*/,
@@ -177,6 +181,40 @@ public:
     return jt;
   }
 
+  // tesseract_planning::CompositeInstruction createProgram2()
+  // {
+  //   using namespace tesseract_planning;
+
+  //   auto default_mi = tesseract_common::ManipulatorInfo();
+  //   default_mi.manipulator = GROUP_NAME;
+  //   default_mi.working_frame = "gantry_base";
+  //   default_mi.tcp_frame = TCP;
+
+  //   auto program = tesseract_planning::CompositeInstruction(PROFILE, tesseract_planning::CompositeInstructionOrder::ORDERED, default_mi);
+
+  //   // Add the current state of the robot as the start state of the trajectory
+  //   const std::vector<std::string> joint_names = env_->getJointGroup(default_mi.manipulator)->getJointNames();
+  //   StateWaypoint current_state(joint_names, env_->getCurrentJointValues(joint_names));
+  //   program.appendMoveInstruction(
+  //       MoveInstruction(StateWaypointPoly{ current_state }, MoveInstructionType::FREESPACE, PROFILE, default_mi));
+
+  //   // Waypoint 1
+  //   Eigen::Isometry3d w1 = Eigen::Isometry3d::Identity();
+  //   w1.translate(Eigen::Vector3d(3.0, 3.0, 2.0));
+
+  //   program.appendMoveInstruction(
+  //       MoveInstruction(CartesianWaypointPoly{ CartesianWaypoint(w1) }, MoveInstructionType::LINEAR, PROFILE, default_mi));
+
+  //   // Waypoint 2
+  //   Eigen::Isometry3d w2 = Eigen::Isometry3d::Identity();
+  //   w2.translate(Eigen::Vector3d(5.0, 5.0, 2.0));
+
+  //   program.appendMoveInstruction(
+  //       MoveInstruction(CartesianWaypointPoly{ CartesianWaypoint(w2) }, MoveInstructionType::LINEAR, PROFILE, default_mi));
+
+  //   return program;
+  // }
+
   tesseract_planning::CompositeInstruction createProgram()
   {
     using namespace tesseract_planning;
@@ -186,76 +224,146 @@ public:
     default_mi.working_frame = "gantry_base";
     default_mi.tcp_frame = TCP;
 
-    auto program = tesseract_planning::CompositeInstruction("DEFAULT", tesseract_planning::CompositeInstructionOrder::ORDERED, default_mi);
-
-    // WP1: Move to "jig_entry"
-    auto wp1 = getWaypointFromGroupState(GROUP_NAME, "jig_entry");
-    program.appendMoveInstruction(
-      MoveInstruction(JointWaypointPoly{ wp1 }, MoveInstructionType::LINEAR, "DEFAULT", default_mi
-    ));
-
-    // WP2: Move to "jig_middle"
-    auto wp2 = getWaypointFromGroupState(GROUP_NAME, "jig_middle");
-    program.appendMoveInstruction(
-      MoveInstruction(JointWaypointPoly{ wp2 }, MoveInstructionType::LINEAR, "DEFAULT", default_mi
-    ));
+    // Add the current state of the robot as the start state of the trajectory
+    const std::vector<std::string> joint_names = env_->getJointGroup(GROUP_NAME)->getJointNames();
+    StateWaypoint current_state(joint_names, env_->getCurrentJointValues(joint_names));
 
     // Poses used for the plate movements
-    auto plate_wp1 = tesseract_planning::CartesianWaypoint(Eigen::Isometry3d(Eigen::Translation3d(0.0, 0.0, 0.0)));
-    auto plate_wp2 = tesseract_planning::CartesianWaypoint(Eigen::Isometry3d(Eigen::Translation3d(0.25, 0.0, 0.0)));
-    auto plate_wp3 = tesseract_planning::CartesianWaypoint(Eigen::Isometry3d(Eigen::Translation3d(0.0, 0.25, 0.0)));
-    auto plate_wp4 = tesseract_planning::CartesianWaypoint(Eigen::Isometry3d(Eigen::Translation3d(0.25, 0.25, 0.0)));
+    const tesseract_common::JointState seed(joint_names, env_->getCurrentJointValues(joint_names));
 
+    const double z_offset = 0.35;
 
-    // WP3-6: Move over WOBJ_1
+    auto plate_wp1 = tesseract_planning::CartesianWaypoint(Eigen::Isometry3d(Eigen::Translation3d(0.0, 0.0, z_offset)));
+    plate_wp1.setSeed(seed);
+
+    auto plate_wp2 = tesseract_planning::CartesianWaypoint(Eigen::Isometry3d(Eigen::Translation3d(0.25, 0.0, z_offset)));
+    plate_wp2.setSeed(seed);
+
+    auto plate_wp3 = tesseract_planning::CartesianWaypoint(Eigen::Isometry3d(Eigen::Translation3d(0.0, 0.25, z_offset)));
+    plate_wp3.setSeed(seed);
+
+    auto plate_wp4 = tesseract_planning::CartesianWaypoint(Eigen::Isometry3d(Eigen::Translation3d(0.25, 0.25, z_offset)));
+    plate_wp4.setSeed(seed);
+
+    // Define manipulator groups for each plate
     auto mi_wobj_1 = tesseract_common::ManipulatorInfo();
     mi_wobj_1.manipulator = GROUP_NAME;
     mi_wobj_1.working_frame = WOBJ_1;
     mi_wobj_1.tcp_frame = TCP;
 
-    auto ci_wobj_1 = tesseract_planning::CompositeInstruction("DEFAULT", tesseract_planning::CompositeInstructionOrder::ORDERED, mi_wobj_1);
-    ci_wobj_1.appendMoveInstruction(
-      MoveInstruction(CartesianWaypointPoly{ plate_wp1 }, MoveInstructionType::LINEAR, "DEFAULT", mi_wobj_1)
-    );
-    ci_wobj_1.appendMoveInstruction(
-      MoveInstruction(CartesianWaypointPoly{ plate_wp2 }, MoveInstructionType::LINEAR, "DEFAULT", mi_wobj_1)
-    );
-    ci_wobj_1.appendMoveInstruction(
-      MoveInstruction(CartesianWaypointPoly{ plate_wp3 }, MoveInstructionType::LINEAR, "DEFAULT", mi_wobj_1)
-    );
-    ci_wobj_1.appendMoveInstruction(
-      MoveInstruction(CartesianWaypointPoly{ plate_wp4 }, MoveInstructionType::LINEAR, "DEFAULT", mi_wobj_1)
-    );
-    program.push_back(ci_wobj_1);
+    auto mi_wobj_3 = tesseract_common::ManipulatorInfo();
+    mi_wobj_3.manipulator = GROUP_NAME;
+    mi_wobj_3.working_frame = WOBJ_3;
+    mi_wobj_3.tcp_frame = TCP;
 
+    // Create the top-level container
+    auto program = tesseract_planning::CompositeInstruction(PROFILE, CompositeInstructionOrder::ORDERED, default_mi);
+
+    // Define from the start waypoint to the first raster waypoint
+    {
+      tesseract_planning::CompositeInstruction from_start(PROFILE, CompositeInstructionOrder::ORDERED, mi_wobj_1);
+      from_start.appendMoveInstruction(
+          MoveInstruction(StateWaypointPoly{ current_state }, MoveInstructionType::FREESPACE, PROFILE, mi_wobj_1));
+
+      from_start.appendMoveInstruction(
+          MoveInstruction(CartesianWaypointPoly{ plate_wp1 }, MoveInstructionType::FREESPACE, PROFILE, mi_wobj_1));
+
+      program.push_back(from_start);
+    }
+
+    // WP1: Move to "jig_entry"
+    // auto wp1 = getWaypointFromGroupState(GROUP_NAME, "jig_entry");
+    // program.appendMoveInstruction(
+    //   MoveInstruction(JointWaypointPoly{ wp1 }, MoveInstructionType::LINEAR, PROFILE, default_mi
+    // ));
+
+    // WP2: Move to "jig_middle"
+    // auto wp2 = getWaypointFromGroupState(GROUP_NAME, "jig_middle");
+    // program.appendMoveInstruction(
+    //   MoveInstruction(JointWaypointPoly{ wp2 }, MoveInstructionType::LINEAR, PROFILE, default_mi
+    // ));
+
+    // WP3-6: Move over WOBJ_1
+    {
+      tesseract_planning::CompositeInstruction raster_1(PROFILE, CompositeInstructionOrder::ORDERED, mi_wobj_1);
+
+      // raster_1.appendMoveInstruction(
+      //     MoveInstruction(CartesianWaypointPoly{ plate_wp1 }, MoveInstructionType::LINEAR, PROFILE, mi_wobj_1)
+      //     );
+      raster_1.appendMoveInstruction(
+          MoveInstruction(CartesianWaypointPoly{ plate_wp2 }, MoveInstructionType::LINEAR, PROFILE, mi_wobj_1)
+          );
+      raster_1.appendMoveInstruction(
+          MoveInstruction(CartesianWaypointPoly{ plate_wp3 }, MoveInstructionType::LINEAR, PROFILE, mi_wobj_1)
+          );
+      raster_1.appendMoveInstruction(
+          MoveInstruction(CartesianWaypointPoly{ plate_wp4 }, MoveInstructionType::LINEAR, PROFILE, mi_wobj_1)
+          );
+
+      program.push_back(raster_1);
+    }
+
+    // Add a transition
+    {
+      tesseract_planning::CompositeInstruction transition(PROFILE, CompositeInstructionOrder::ORDERED, mi_wobj_3);
+
+      transition.appendMoveInstruction(
+          MoveInstruction(CartesianWaypointPoly{ plate_wp1 }, MoveInstructionType::FREESPACE, PROFILE, mi_wobj_3)
+          );
+
+      program.push_back(transition);
+    }
 
     // WP7-10:: Move over WOBJ_3
-    auto mi_wobj_3 = tesseract_common::ManipulatorInfo();
-    mi_wobj_1.manipulator = GROUP_NAME;
-    mi_wobj_1.working_frame = WOBJ_3;
-    mi_wobj_1.tcp_frame = TCP;
+    {
+      tesseract_planning::CompositeInstruction raster_2(PROFILE, CompositeInstructionOrder::ORDERED, mi_wobj_3);
 
-    auto ci_wobj_3 = tesseract_planning::CompositeInstruction("DEFAULT", tesseract_planning::CompositeInstructionOrder::ORDERED, mi_wobj_3);
-    ci_wobj_3.appendMoveInstruction(
-      MoveInstruction(CartesianWaypointPoly{ plate_wp1 }, MoveInstructionType::LINEAR, "DEFAULT", mi_wobj_3)
-    );
-    ci_wobj_3.appendMoveInstruction(
-      MoveInstruction(CartesianWaypointPoly{ plate_wp2 }, MoveInstructionType::LINEAR, "DEFAULT", mi_wobj_3)
-    );
-    ci_wobj_3.appendMoveInstruction(
-      MoveInstruction(CartesianWaypointPoly{ plate_wp3 }, MoveInstructionType::LINEAR, "DEFAULT", mi_wobj_3)
-    );
-    ci_wobj_3.appendMoveInstruction(
-      MoveInstruction(CartesianWaypointPoly{ plate_wp4 }, MoveInstructionType::LINEAR, "DEFAULT", mi_wobj_3)
-    );
-    program.push_back(ci_wobj_3);
+      // raster_2.appendMoveInstruction(
+      //     MoveInstruction(CartesianWaypointPoly{ plate_wp1 }, MoveInstructionType::LINEAR, PROFILE, mi_wobj_3)
+      //     );
+      raster_2.appendMoveInstruction(
+          MoveInstruction(CartesianWaypointPoly{ plate_wp2 }, MoveInstructionType::LINEAR, PROFILE, mi_wobj_3)
+          );
+      raster_2.appendMoveInstruction(
+          MoveInstruction(CartesianWaypointPoly{ plate_wp3 }, MoveInstructionType::LINEAR, PROFILE, mi_wobj_3)
+          );
+      raster_2.appendMoveInstruction(
+          MoveInstruction(CartesianWaypointPoly{ plate_wp4 }, MoveInstructionType::LINEAR, PROFILE, mi_wobj_3)
+          );
 
+      program.push_back(raster_2);
+    }
 
     // WP11: Move to "home"
-    auto wp11 = getWaypointFromGroupState(GROUP_NAME, "home");
-    program.appendMoveInstruction(
-      MoveInstruction(JointWaypointPoly{ wp1 }, MoveInstructionType::FREESPACE, "DEFAULT", default_mi
-    ));
+    // auto wp11 = getWaypointFromGroupState(GROUP_NAME, "home");
+    // program.appendMoveInstruction(
+    //   MoveInstruction(JointWaypointPoly{ wp1 }, MoveInstructionType::FREESPACE, "DEFAULT", default_mi
+    // ));
+
+    // Define a move back to the current robot state
+    {
+      tesseract_planning::CompositeInstruction to_home(PROFILE, CompositeInstructionOrder::ORDERED, mi_wobj_1);
+
+      to_home.appendMoveInstruction(
+          MoveInstruction(StateWaypointPoly{ current_state }, MoveInstructionType::FREESPACE, PROFILE, mi_wobj_1));
+
+      program.push_back(to_home);
+    }
+
+    // Plot the waypoints
+    {
+      const Eigen::Isometry3d root_to_plate_1 = env_->getLinkTransform(WOBJ_1);
+      plotter_->plotMarker(tesseract_visualization::AxisMarker(root_to_plate_1 * plate_wp1.getTransform()));
+      plotter_->plotMarker(tesseract_visualization::AxisMarker(root_to_plate_1 * plate_wp2.getTransform()));
+      plotter_->plotMarker(tesseract_visualization::AxisMarker(root_to_plate_1 * plate_wp3.getTransform()));
+      plotter_->plotMarker(tesseract_visualization::AxisMarker(root_to_plate_1 * plate_wp4.getTransform()));
+
+      const Eigen::Isometry3d root_to_plate_3 = env_->getLinkTransform(WOBJ_3);
+      plotter_->plotMarker(tesseract_visualization::AxisMarker(root_to_plate_3 * plate_wp1.getTransform()));
+      plotter_->plotMarker(tesseract_visualization::AxisMarker(root_to_plate_3 * plate_wp2.getTransform()));
+      plotter_->plotMarker(tesseract_visualization::AxisMarker(root_to_plate_3 * plate_wp3.getTransform()));
+      plotter_->plotMarker(tesseract_visualization::AxisMarker(root_to_plate_3 * plate_wp4.getTransform()));
+    }
 
     return program;
   }
@@ -267,11 +375,11 @@ public:
     auto profile_dict = std::make_shared<ProfileDictionary>();
     
     // TODO: Add profiles
-    // profile_dict->addProfile<>();
+    auto profile = std::make_shared<tesseract_planning::SimplePlannerLVSPlanProfile>();
+    profile_dict->addProfile<tesseract_planning::SimplePlannerPlanProfile>("SimplePlanner", PROFILE, profile);
 
     return profile_dict;
   }
-
 
   trajectory_msgs::msg::JointTrajectory planTrajectory(const tesseract_planning::CompositeInstruction& program)
   {
@@ -327,15 +435,28 @@ public:
     }
 
     // Plot the results of the intermediate planner steps
-    plotTrajectory("simple_planner_trajectory", result->context);
-    plotTrajectory("descartes_trajectory", result->context);
+    try
+    {
+      plotTrajectory("simple_planner_trajectory", result->context);
+    }
+    catch(const std::exception&)
+    {
+    }
 
-    // Get results of successful plan
-    tesseract_common::JointTrajectory jt = plotTrajectory(output_key, result->context);
+    try
+    {
+      plotTrajectory("descartes_trajectory", result->context);
+    }
+    catch(const std::exception&)
+    {
+    }
 
     // Check for successful plan
     if (!result->context->isSuccessful() || result->context->isAborted())
       throw std::runtime_error("Failed to create motion plan");
+
+    // Get results of successful plan
+    tesseract_common::JointTrajectory jt  = plotTrajectory(output_key, result->context);
 
     return tesseract_rosutils::toMsg(jt, env_->getState());
   }

@@ -9,6 +9,7 @@ Panels:
         - /TesseractWorkbench1/Environment Properties1
         - /TesseractWorkbench1/Joint Trajectory Properties1
         - /TesseractWorkbench1/Joint Trajectory Properties1/Tesseract Joint Trajectory1
+        - /MarkerArray1/Topic1
       Splitter Ratio: 0.5
     Tree Height: 758
   - Class: rviz_common/Selection
@@ -51,173 +52,19 @@ Visualization Manager:
       Reference Frame: <Fixed Frame>
       Value: true
     - Class: rviz_default_plugins/TF
-      Enabled: true
+      Enabled: false
       Frame Timeout: 15
       Frames:
         All Enabled: true
-        arm_mount_hams_plate_link:
-          Value: true
-        axle_link:
-          Value: true
-        base_link:
-          Value: true
-        chassis_link:
-          Value: true
-        front_cover_link:
-          Value: true
-        front_left_wheel_link:
-          Value: true
-        front_lights_link:
-          Value: true
-        front_right_wheel_link:
-          Value: true
-        front_rocker_link:
-          Value: true
-        hams_plate_link:
-          Value: true
-        imu_link:
-          Value: true
-        left_side_cover_link:
-          Value: true
-        map:
-          Value: true
-        mid_mount:
-          Value: true
-        rear_cover_link:
-          Value: true
-        rear_left_wheel_link:
-          Value: true
-        rear_lights_link:
-          Value: true
-        rear_right_wheel_link:
-          Value: true
-        rear_rocker_link:
-          Value: true
-        right_side_cover_link:
-          Value: true
-        riser_link:
-          Value: true
-        table_legs_link:
-          Value: true
-        table_top_link:
-          Value: true
-        top_link:
-          Value: true
-        ur10e_base:
-          Value: true
-        ur10e_base_link:
-          Value: true
-        ur10e_base_link_inertia:
-          Value: true
-        ur10e_flange:
-          Value: true
-        ur10e_forearm_link:
-          Value: true
-        ur10e_ft_frame:
-          Value: true
-        ur10e_shoulder_link:
-          Value: true
-        ur10e_tool0:
-          Value: true
-        ur10e_upper_arm_link:
-          Value: true
-        ur10e_wrist_1_link:
-          Value: true
-        ur10e_wrist_2_link:
-          Value: true
-        ur10e_wrist_3_link:
-          Value: true
-        x:
-          Value: true
-        y:
-          Value: true
-        yaw:
-          Value: true
       Marker Scale: 1
       Name: TF
       Show Arrows: true
       Show Axes: true
       Show Names: false
       Tree:
-        map:
-          arm_mount_hams_plate_link:
-            {}
-          axle_link:
-            {}
-          base_link:
-            {}
-          chassis_link:
-            {}
-          front_cover_link:
-            {}
-          front_left_wheel_link:
-            {}
-          front_lights_link:
-            {}
-          front_right_wheel_link:
-            {}
-          front_rocker_link:
-            {}
-          hams_plate_link:
-            {}
-          imu_link:
-            {}
-          left_side_cover_link:
-            {}
-          mid_mount:
-            {}
-          rear_cover_link:
-            {}
-          rear_left_wheel_link:
-            {}
-          rear_lights_link:
-            {}
-          rear_right_wheel_link:
-            {}
-          rear_rocker_link:
-            {}
-          right_side_cover_link:
-            {}
-          riser_link:
-            {}
-          table_legs_link:
-            {}
-          table_top_link:
-            {}
-          top_link:
-            {}
-          ur10e_base:
-            {}
-          ur10e_base_link:
-            {}
-          ur10e_base_link_inertia:
-            {}
-          ur10e_flange:
-            {}
-          ur10e_forearm_link:
-            {}
-          ur10e_ft_frame:
-            {}
-          ur10e_shoulder_link:
-            {}
-          ur10e_tool0:
-            {}
-          ur10e_upper_arm_link:
-            {}
-          ur10e_wrist_1_link:
-            {}
-          ur10e_wrist_2_link:
-            {}
-          ur10e_wrist_3_link:
-            {}
-          x:
-            {}
-          y:
-            {}
-          yaw:
-            {}
+        {}
       Update Interval: 0
-      Value: true
+      Value: false
     - Alpha: 1
       Class: rviz_default_plugins/RobotModel
       Collision Enabled: false
@@ -263,10 +110,22 @@ Visualization Manager:
         Value: ""
       Name: TesseractWorkbench
       Value: true
+    - Class: rviz_default_plugins/MarkerArray
+      Enabled: true
+      Name: MarkerArray
+      Namespaces:
+        {}
+      Topic:
+        Depth: 50
+        Durability Policy: Volatile
+        History Policy: Keep All
+        Reliability Policy: Reliable
+        Value: /samxl/display_axes
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
-    Fixed Frame: map
+    Fixed Frame: gantry_base
     Frame Rate: 30
   Name: root
   Tools:
@@ -309,25 +168,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Distance: 4.142862796783447
+      Distance: 22.67623519897461
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.5160992741584778
-        Y: 0.6588552594184875
-        Z: 0.8026559948921204
+        X: 2.9234213829040527
+        Y: 8.780332565307617
+        Z: -1.2368441820144653
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.4731990098953247
+      Pitch: 0.608198881149292
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 6.258589744567871
+      Yaw: 5.713585376739502
     Saved: ~
 Window Geometry:
   Displays:

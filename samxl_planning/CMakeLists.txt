@@ -8,6 +8,7 @@ endif()
 # find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(tesseract_rosutils REQUIRED)
+find_package(tesseract_motion_planners REQUIRED)
 find_package(tesseract_monitoring REQUIRED)
 find_package(control_msgs REQUIRED)
 find_package(std_srvs REQUIRED)
@@ -21,6 +22,9 @@ ament_target_dependencies(${PROJECT_NAME}
 )
 
 add_executable(gantry_planning_problem_1 src/gantry_planning_problem_1.cpp)
+target_link_libraries(gantry_planning_problem_1
+  tesseract::tesseract_motion_planners_simple
+)
 ament_target_dependencies(gantry_planning_problem_1
   tesseract_rosutils
   tesseract_monitoring
@@ -36,6 +40,6 @@ target_include_directories(gantry_planning_problem_1
 install(DIRECTORY launch DESTINATION share/${PROJECT_NAME})
 
 # Install the executable(s)
-install(TARGETS ${PROJECT_NAME} DESTINATION lib/${PROJECT_NAME})
+install(TARGETS ${PROJECT_NAME} gantry_planning_problem_1 DESTINATION lib/${PROJECT_NAME})
 
 ament_package()
