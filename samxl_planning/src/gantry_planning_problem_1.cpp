@@ -179,21 +179,26 @@ public:
 
   tesseract_planning::CompositeInstruction createProgram()
   {
+    using namespace tesseract_planning;
+
     auto default_mi = tesseract_common::ManipulatorInfo();
-    // TODO: Populate the default ManipulatorInfo
+    default_mi.manipulator = GROUP_NAME;
+    default_mi.working_frame = "gantry_base";
+    default_mi.tcp_frame = TCP;
 
     auto program = tesseract_planning::CompositeInstruction("DEFAULT", tesseract_planning::CompositeInstructionOrder::ORDERED, default_mi);
 
-
     // WP1: Move to "jig_entry"
     auto wp1 = getWaypointFromGroupState(GROUP_NAME, "jig_entry");
-    // TODO: Add waypoint to program
-
+    program.appendMoveInstruction(
+      MoveInstruction(JointWaypointPoly{ wp1 }, MoveInstructionType::LINEAR, "DEFAULT", default_mi
+    ));
 
     // WP2: Move to "jig_middle"
     auto wp2 = getWaypointFromGroupState(GROUP_NAME, "jig_middle");
-    // TODO: Add waypoint to program
-
+    program.appendMoveInstruction(
+      MoveInstruction(JointWaypointPoly{ wp2 }, MoveInstructionType::LINEAR, "DEFAULT", default_mi
+    ));
 
     // Poses used for the plate movements
     auto plate_wp1 = tesseract_planning::CartesianWaypoint(Eigen::Isometry3d(Eigen::Translation3d(0.0, 0.0, 0.0)));
@@ -202,30 +207,71 @@ public:
     auto plate_wp4 = tesseract_planning::CartesianWaypoint(Eigen::Isometry3d(Eigen::Translation3d(0.25, 0.25, 0.0)));
 
 
-    // WPXX-XX: Move over plate 6
-    auto mi_plate_6 = tesseract_common::ManipulatorInfo();
-    // TODO: Populate the ManipulatorInfo for "plate_6"
+    // WP3-6: Move over WOBJ_1
+    auto mi_wobj_1 = tesseract_common::ManipulatorInfo();
+    mi_wobj_1.manipulator = GROUP_NAME;
+    mi_wobj_1.working_frame = WOBJ_1;
+    mi_wobj_1.tcp_frame = TCP;
 
-    auto ci_plate_6 = tesseract_planning::CompositeInstruction("DEFAULT", tesseract_planning::CompositeInstructionOrder::ORDERED, mi_plate_6);
-    // TODO: Add waypoints to ci_plate_6
-    // TODO: Add ci_plate_6 to program
+    auto ci_wobj_1 = tesseract_planning::CompositeInstruction("DEFAULT", tesseract_planning::CompositeInstructionOrder::ORDERED, mi_wobj_1);
+    ci_wobj_1.appendMoveInstruction(
+      MoveInstruction(CartesianWaypointPoly{ plate_wp1 }, MoveInstructionType::LINEAR, "DEFAULT", mi_wobj_1)
+    );
+    ci_wobj_1.appendMoveInstruction(
+      MoveInstruction(CartesianWaypointPoly{ plate_wp2 }, MoveInstructionType::LINEAR, "DEFAULT", mi_wobj_1)
+    );
+    ci_wobj_1.appendMoveInstruction(
+      MoveInstruction(CartesianWaypointPoly{ plate_wp3 }, MoveInstructionType::LINEAR, "DEFAULT", mi_wobj_1)
+    );
+    ci_wobj_1.appendMoveInstruction(
+      MoveInstruction(CartesianWaypointPoly{ plate_wp4 }, MoveInstructionType::LINEAR, "DEFAULT", mi_wobj_1)
+    );
+    program.push_back(ci_wobj_1);
 
 
-    // WPXX-XX:: Move over plate 1
-    auto mi_plate_1 = tesseract_common::ManipulatorInfo();
-    // TODO: Populate the ManipulatorInfo for "plate_1"
+    // WP7-10:: Move over WOBJ_3
+    auto mi_wobj_3 = tesseract_common::ManipulatorInfo();
+    mi_wobj_1.manipulator = GROUP_NAME;
+    mi_wobj_1.working_frame = WOBJ_3;
+    mi_wobj_1.tcp_frame = TCP;
 
-    auto ci_plate_1 = tesseract_planning::CompositeInstruction("DEFAULT", tesseract_planning::CompositeInstructionOrder::ORDERED, mi_plate_1);
-    // TODO: Add waypoints to ci_plate_1
-    // TODO: Add ci_plate_1 to program
+    auto ci_wobj_3 = tesseract_planning::CompositeInstruction("DEFAULT", tesseract_planning::CompositeInstructionOrder::ORDERED, mi_wobj_3);
+    ci_wobj_3.appendMoveInstruction(
+      MoveInstruction(CartesianWaypointPoly{ plate_wp1 }, MoveInstructionType::LINEAR, "DEFAULT", mi_wobj_3)
+    );
+    ci_wobj_3.appendMoveInstruction(
+      MoveInstruction(CartesianWaypointPoly{ plate_wp2 }, MoveInstructionType::LINEAR, "DEFAULT", mi_wobj_3)
+    );
+    ci_wobj_3.appendMoveInstruction(
+      MoveInstruction(CartesianWaypointPoly{ plate_wp3 }, MoveInstructionType::LINEAR, "DEFAULT", mi_wobj_3)
+    );
+    ci_wobj_3.appendMoveInstruction(
+      MoveInstruction(CartesianWaypointPoly{ plate_wp4 }, MoveInstructionType::LINEAR, "DEFAULT", mi_wobj_3)
+    );
+    program.push_back(ci_wobj_3);
 
 
-    // WPXX: Move to "home"
-    auto wp10 = getWaypointFromGroupState(GROUP_NAME, "home");
-    // TODO: Add waypoint to program
+    // WP11: Move to "home"
+    auto wp11 = getWaypointFromGroupState(GROUP_NAME, "home");
+    program.appendMoveInstruction(
+      MoveInstruction(JointWaypointPoly{ wp1 }, MoveInstructionType::FREESPACE, "DEFAULT", default_mi
+    ));
 
     return program;
   }
+
+  tesseract_planning::ProfileDictionary::Ptr createProfileDict()
+  {
+    using namespace tesseract_planning;
+
+    auto profile_dict = std::make_shared<ProfileDictionary>();
+    
+    // TODO: Add profiles
+    // profile_dict->addProfile<>();
+
+    return profile_dict;
+  }
+
 
   trajectory_msgs::msg::JointTrajectory planTrajectory(const tesseract_planning::CompositeInstruction& program)
   {
