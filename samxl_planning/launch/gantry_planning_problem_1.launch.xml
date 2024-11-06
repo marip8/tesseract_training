@@ -5,7 +5,7 @@
   <arg name="robot_description_semantic" default="$(command 'cat $(find-pkg-share penelope_gantry_cell_description)/config/penelope_tool_cell.srdf')"/>
 
   <arg name="task_composer_plugins_file" default="$(find-pkg-share samxl_planning)/config/task_composer_plugins.yaml'"/>
-  <arg name="task_name" default="TrajoptPipeline"/>
+  <arg name="task_name" default="RasterPipeline"/>
 
   <!-- Joint state publisher -->
   <node pkg="joint_state_publisher" exec="joint_state_publisher">

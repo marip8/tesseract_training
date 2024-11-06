@@ -14,7 +14,7 @@ task_composer_plugins:
           inputs:
             program: input_data
           outputs:
-            trajectory: trajopt_trajectory
+            program: trajopt_trajectory
           nodes:
             SimplePlanner:
               class: SimpleMotionPlannerTaskFactory
@@ -82,7 +82,7 @@ task_composer_plugins:
           inputs:
             program: input_data
           outputs:
-            trajectory: trajopt_trajectory
+            program: trajopt_trajectory
           nodes:
             OMPL:
               class: OMPLMotionPlannerTaskFactory
@@ -95,6 +95,16 @@ task_composer_plugins:
                 outputs:
                   program: ompl_trajectory
                 format_result_as_input: false
+            MinLength:
+              class: MinLengthTaskFactory
+              config:
+                conditional: false
+                inputs:
+                  program: ompl_trajectory
+                  environment: environment
+                  profiles: profiles
+                outputs:
+                  program: ompl_trajectory
             Trajopt:
               class: TrajOptMotionPlannerTaskFactory
               config:
@@ -117,7 +127,9 @@ task_composer_plugins:
                 trigger_abort: true
           edges:
             - source: OMPL
-              destinations: [Error, Trajopt]
+              destinations: [Error, MinLength]
+            - source: MinLength
+              destinations: [Trajopt]
             - source: Trajopt
               destinations: [Error, Done]
           terminals: [Error, Done]
@@ -127,7 +139,7 @@ task_composer_plugins:
           inputs:
             program: input_data
           outputs:
-            trajectory: output_data
+            program: output_data
           nodes:
             Done:
               class: DoneTaskFactory
@@ -150,24 +162,15 @@ task_composer_plugins:
                 freespace:
                   task: FreespacePipeline
                   config:
-                    remapping:
-                      input_data: output_data
-                      output_data: output_data
-                    indexing: [output_data]
+                    indexing: [input_data, ompl_trajectory, trajopt_trajectory]
                 raster:
                   task: TrajOptPipeline
                   config:
-                    remapping:
-                      input_data: output_data
-                      output_data: output_data
-                    indexing: [output_data]
+                    indexing: [input_data, simple_planner_trajectory, descartes_trajectory, trajopt_trajectory]
                 transition:
                   task: FreespacePipeline
                   config:
-                    remapping:
-                      input_data: output_data
-                      output_data: output_data
-                    indexing: [output_data]
+                    indexing: [input_data, ompl_trajectory, trajopt_trajectory]
           edges:
             - source: RasterTask
               destinations: [Error, Done]

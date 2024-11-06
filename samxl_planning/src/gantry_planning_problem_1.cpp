@@ -402,7 +402,7 @@ public:
     
     //
     const std::string input_key = task->getInputKeys().get("program");
-    const std::string output_key = task->getOutputKeys().get("trajectory");
+    const std::string output_key = task->getOutputKeys().get("program");
 
     auto task_data = std::make_shared<tesseract_planning::TaskComposerDataStorage>();
     task_data->setData(input_key, program);
